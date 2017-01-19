@@ -1,0 +1,24 @@
+<html ng-app="redis">
+    <head>
+        <title>Microsoft Ignite Sep. 2016 - Worker Node</title>
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+            <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular.min.js"></script>
+            <script src="controllers.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.13.0/ui-bootstrap-tpls.js"></script>
+            </head>
+    <body>
+        <div ng-controller="RedisDemandCtrl" style="width: 50%; margin-left: 20px">
+            <h4>Microsoft Ignite Sep. 2016 - Worker Node Status</h4>
+            <form>
+                <!--fieldset>
+                        <button type="button" class="btn btn-primary" ng-click="controller.onRedisDemand()">Pull Scheduled Events</button>
+                        </fieldset-->
+            </form>
+            <div>
+                <div style="font-size:100%;width:190%" ng-model="element">
+                    {{element}}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
