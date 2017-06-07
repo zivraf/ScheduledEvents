@@ -3,8 +3,7 @@ $localHostIP = "169.254.169.254"
 $scheduledEventURI = 'http://{0}/metadata/scheduledevents?api-version=2017-03-01' -f $localHostIP 
 $eventSource = "AzureScheduledEvents" 
 $eventLogName = "Application"
-$eventLogId = 1234
-   
+$eventLogId = 1234   
 
 # How to get scheduled events 
 function GetScheduledEvents($uri)
