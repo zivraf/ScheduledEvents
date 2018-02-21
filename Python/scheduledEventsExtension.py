@@ -13,8 +13,14 @@ import time
 import urllib.request
 import urllib.parse
 import configparser
+from azure.mgmt.resource import ResourceManagementClient
+from azure.mgmt.eventgrid import EventGridManagementClient
+from datetime import datetime
+from azure.eventgrid import EventGridClient
+from msrest.authentication import TopicCredentials
+import requests
 
-metadata_url="http://169.254.169.254/metadata/latest/scheduledevents?api-version=2017-03-01"
+metadata_url="http://169.254.169.254/metadata/scheduledevents?api-version=2017-08-01"
 headers="{Metadata:true}"
 this_host=socket.gethostname()
 log_format = " %(asctime)s [%(levelname)s] %(message)s"
@@ -22,49 +28,40 @@ logger = logging.getLogger('example')
 logging.basicConfig(format=log_format, level=logging.DEBUG)
 
 
-class EventHubMsgSender:
-    
-    API_VERSION = '2016-07'
-    TOKEN_VALID_SECS = 10
-    TOKEN_FORMAT = 'SharedAccessSignature sig=%s&se=%s&skn=%s&sr=%s'
-    
+class EventGridMsgSender:
+ 
     def __init__(self, connectionString=None):
         if connectionString == None:
             config = configparser.ConfigParser()
-            config.read('scheduledEventsInteractiveToolConfig.ini')
-            connectionString = config['DEFAULT']['connectionstring']
-            connectionString = connectionString.replace("sb://","")
+            config.read('scheduledEventsExtensionConfig.ini')
+            self.topicKey = config['DEFAULT']['topic_key']
+            if self.topicKey is None:
+                logger.error ("Failed to load Event Grid key. Make sure config file contains 'topic_key' entry")
+            self.topicName = config['DEFAULT']['topic_name']
+            if self.topicName is None:
+                logger.error ("Failed to load Event Grid Topic Name. Make sure config file contains 'topic_name' entry")
+            self.credentials = TopicCredentials(self.topicKey)
+            self.egClient = EventGridClient(self.credentials)
 
-        if connectionString != None:
-            endPoint, keyName, keyValue, entityPath = [sub[sub.index('=') + 1:] for sub in connectionString.split(";")]
-            self.endPoint = endPoint
-            self.keyName = keyName
-            self.keyValue = keyValue
-            self.entityPath = entityPath
+
+    def send_to_evnt_grid (self, msgId, msg):
+        logger.debug ("send_to_evnt_grid: MsgId: "+ msgId+", MsgData: "+ msg)
+        self.egClient.publish_events(
+            self.topicName,
+            events=[{
+            'id' : msgId,
+            'subject' : "Scheduled Event",
+            'data':  msg,
+        'event_type': 'PersonalEventType',
+        'event_time': datetime(2018, 1, 30),
+        'data_version': 1
+    }])
    
-    def _buildEventHubSasToken (self):
-        expiry = int(time.time() + 10000)
-        string_to_sign = urllib.parse.quote_plus(self.endPoint) + '\n' + str(expiry)        
-        key = self.keyValue.encode('utf-8')
-        string_to_sign = string_to_sign.encode('utf-8')
-        signed_hmac_sha256 = hmac.HMAC(key, string_to_sign, hashlib.sha256)
-        signature = signed_hmac_sha256.digest()
-        signature = base64.b64encode(signature)
-        return 'SharedAccessSignature sr=' + urllib.parse.quote_plus(self.endPoint)  + '&sig=' + urllib.parse.quote(signature) + '&se=' + str(expiry) + '&skn=' + self.keyName
 
-    def sendD2CMsg(self, message):
-        sasToken = self._buildEventHubSasToken()
-        url = 'https://%s%s/messages?api-version=%s' % (self.endPoint,  self.entityPath,self.API_VERSION)
-        data = message.encode ('ascii')
-        req = urllib.request.Request (url, headers={'Authorization': sasToken}, data=data, method='POST')
-        with urllib.request.urlopen(req) as f:
-            pass
-        return f.read().decode('utf-8')
-
-
-def send_to_event_hub (evt):
-    ehMsgSender = EventHubMsgSender()
-    result=  ehMsgSender.sendD2CMsg(evt)
+def send_to_event_grid (msgId, evt):
+    logger.debug ("send_to_event_grid called with MsgId "+ msgId)
+    egMsgSender = EventGridMsgSender()
+    result=  egMsgSender.send_to_evnt_grid("1234-abc",scheduledEventMsg)
     logger.debug ("send_to_event_hub returned "+ result)
 
 
@@ -72,6 +69,7 @@ def get_scheduled_events():
    logger.debug ("get_scheduled_events was called")
    req=urllib.request.Request(metadata_url)
    req.add_header('Metadata','true')
+   logger.debug ("Calling for scheduled events: "+ metadata_url)
    resp=urllib.request.urlopen(req)
    data=json.loads(resp.read().decode('utf8'))
    '''logger.debug ("scheduled events: \n:"+data)'''
@@ -81,19 +79,20 @@ def ack_event(evt):
     logger.info ("ack_event was called with eventID "+ evt['EventId'])
     ack_msg="{\"StartRequests\":[{\"EventId\":\""+evt['EventId'] +"\"}]}"
     ack_msg=ack_msg.encode()
-    res=urllib.request.urlopen("http://169.254.169.254/metadata/latest/scheduledevents", data=ack_msg).read()
-    current_time = datetime.now().strftime('%H:%M:%S')
-    ehMsg = '{ "Hostname":"' + this_host+ '","Time":"'+current_time+'","LogType":"INFO","Msg":"Scheduled Event was acknowledged","EventID":"'+evt['EventId']+'"}'
-    send_to_event_hub(ehMsg)
+    res=urllib.request.urlopen("http://169.254.169.254/metadata/scheduledevents?api-version=2017-08-01", data=ack_msg).read()
+    #current_time = datetime.now().strftime('%H:%M:%S')
+    #ehMsg = '{ "Hostname":"' + this_host+ '","Time":"'+current_time+'","LogType":"INFO","Msg":"Scheduled Event was acknowledged","EventID":"'+evt['EventId']+'"}'
+    #send_to_event_hub(ehMsg)
 
-def handle_scheduled_events(data):
+def handle_scheduled_events(egMsgSender,data, autoApprove):
     logger.info ("handle_scheduled_events was called with "+ str(len(data['Events'])))
     if len(data['Events']) == 0:
         current_time = datetime.now().strftime('%H:%M:%S')
         ehMsg = '{ "Hostname":"' + this_host+ '","Time":"'+current_time+'","LogType":"DEBUG","Msg":"No Scheduled Events"}'
-        send_to_event_hub(ehMsg)     
-
+        logger.debug ("handle_scheduled_events: No Scheduled Events for host: " + this_host)
+    
     for evt in data['Events']:
+        logger.debug ("Handle a scheduled event")
         eventid=evt['EventId']
         status=evt['EventStatus']
         resources=evt['Resources'][0]
@@ -103,24 +102,27 @@ def handle_scheduled_events(data):
         logger.info ("EventId: "+ eventid+ " Type: "+ eventype+" Status: "+ status+" Resource: "+resources)
 
         current_time = datetime.now().strftime('%H:%M:%S')
-        ehMsg = '{ "Hostname":"' + this_host+ '","Time":"'+current_time+'","LogType":"INFO","Msg":"Scheduled Event was detected","EventID":"'+eventid+'","EventType":"'+eventype+'","Resource":"'+resources+'","NotBefore":"'+notbefore+'"}'
-        send_to_event_hub(ehMsg)
+        ehMsg = '{ "Hostname":"' + this_host+ '","Time":"'+current_time+'","Msg":"Scheduled Event was detected","EventID":"'+eventid+'","EventType":"'+eventype+'","Resource":"'+resources+'","NotBefore":"'+notbefore+'"}'
+        logger.debug ("Event MSG: "+ehMsg)
 
         if this_host in evt['Resources'][0]:
+            logger.debug ("About to send a message to event grid: " + ehMsg)
+            result=  egMsgSender.send_to_evnt_grid(eventid,ehMsg)
             logger.info ("THIS host is scheduled for " + eventype + " not before " + notbefore)
-            userAck = input ('Are you looking to acknowledge the event (y/n)? ')
-            if userAck == 'y':
+            if autoApprove == True:
+                logger.info ("APPROVE Scheduled Event for host " + this_host)    
                 ack_event (evt)
             
 
-def log_event (eventType,message):
-    print (eventType.name + " : " +  message)
-
 def main():
-    logger.debug ("Azure Scheduled Events Interactive Tool")
+    logger.debug ("Azure Scheduled Events Extension - START")
+    egMsgSender = EventGridMsgSender()
     data=get_scheduled_events()
-    handle_scheduled_events(data)
+    handle_scheduled_events(egMsgSender,data,True)
 
+    logger.debug ("Azure Scheduled Events Extension - FINISH")
+
+ 
 
 if __name__ == '__main__':
   main()
