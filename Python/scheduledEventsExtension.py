@@ -9,7 +9,6 @@ import time
 import datetime
 import configparser
 from enum import Enum
-from datetime import datetime
 import scheduledEventsHelper
 import eventGridHelper
 
@@ -50,7 +49,9 @@ def main():
             eventData = seHelper.get_scheduled_events()
         
             if eventData is None or len(eventData)==0 or len(eventData['Events']) == 0:
-                logger.debug ("No Scheduled Events")
+                logger.debug ("--No Scheduled Events")
+                logger.debug (str(datetime.datetime.now()))
+                logger.debug ("++No Scheduled Events")
             else :
                 seHelper.log_event(eventData)
                 egHelper.send_to_evnt_grid(eventData)
@@ -59,8 +60,8 @@ def main():
                     seHelper.ack_event(eventData)
                 # stop the agent after the scheduled event was published
                 isRunning = False
-        except e:
-            logger.error ("failed to retrieve scheduled events "+e)
+        except:
+            logger.error ("failed to retrieve scheduled events ")
             isRunning = False
         if (isRunning): 
             time.sleep(sampleFrequency)

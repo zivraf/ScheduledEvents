@@ -11,13 +11,23 @@ import hmac
 import hashlib
 import time
 import datetime
-import urllib.request
-import urllib.parse
+# import urllib.request
+# import urllib.parse
+# import requests
+
 import configparser
-from datetime import datetime
 from azure.eventgrid import EventGridClient
 from msrest.authentication import TopicCredentials
-import requests
+
+try:
+    from urllib.parse import urlparse, urlencode
+    from urllib.request import urlopen, Request
+    from urllib.error import HTTPError
+except ImportError:
+    from urlparse import urlparse
+    from urllib import urlencode
+    from urllib2 import urlopen, Request, HTTPError
+
 
 log_format = " %(asctime)s [%(levelname)s] %(message)s"
 logger = logging.getLogger('ScheduledEvents')
@@ -70,7 +80,7 @@ class EventGridMsgSender:
                                 'subject' : "ScheduledEvent:"+eventype+", Host:"+resourceId+", Not Before:"+notbefore,
                                 'data': event,
                                 'event_type': "ScheduledEvent",
-                                'event_time':datetime.now(),
+                                'event_time':datetime.datetime.now(),
                                 'data_version': "1.0"
                                 }] )
                         logger.debug ("send_to_evnt_grid: message "+eventid+" was send to EventGrid")
