@@ -50,7 +50,7 @@ class EventGridMsgSender:
                 logger.error ("Failed to load Event Grid Topic Name. Make sure config file contains 'topic_name' entry")            
             self.credentials = TopicCredentials(self.topicKey)
             self.egClient = EventGridClient(self.credentials)
-            self.handleLocalEventsOnly = config.getboolean('DEFAULT','scheduledEvents_handleLocalOnly')
+            self.handleLocalEventsOnly = config.getboolean(eventGridSection,'scheduledEvents_handleLocalOnly')
             if self.handleLocalEventsOnly is None:
                 logger.debug ("Failed to load Event Grid Topic Name. Make sure config file contains 'topic_name' entry")
                 self.handleLocalEventsOnly = False
