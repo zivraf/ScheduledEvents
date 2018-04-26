@@ -49,10 +49,11 @@
                 "https://raw.githubusercontent.com/zivraf/ScheduledEvents/master/Python/eventGridHelper.py",
                 "https://raw.githubusercontent.com/zivraf/ScheduledEvents/master/Python/scheduledEventsHelper.py",
                 "https://raw.githubusercontent.com/zivraf/ScheduledEvents/master/Python/scheduledEventsExtensionConfig.ini",
+                "https://raw.githubusercontent.com/zivraf/ScheduledEvents/master/setup/linux/install-scheduledEventExtention-ubuntu.sh"
               ]
           },
             "protectedSettings": {
-              "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('firstFileName'), ' ', parameters('arguments'))]"
+              "commandToExecute": "bash install-scheduledEventExtension-ubuntu.sh"
             }
           }
         }
