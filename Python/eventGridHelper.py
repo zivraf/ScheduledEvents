@@ -34,7 +34,7 @@ logger = logging.getLogger('ScheduledEvents')
 logging.basicConfig(format=log_format, level=logging.DEBUG)
 this_host=socket.gethostname()
 eventGridSection= 'EVENT-GRID'
-
+agentSection = 'AGENT'
 
 class EventGridMsgSender:
      
@@ -50,11 +50,11 @@ class EventGridMsgSender:
                 logger.error ("Failed to load Event Grid Topic Name. Make sure config file contains 'topic_name' entry")            
             self.credentials = TopicCredentials(self.topicKey)
             self.egClient = EventGridClient(self.credentials)
-            self.handleLocalEventsOnly = config.getboolean(eventGridSection,'scheduledEvents_handleLocalOnly')
+            self.handleLocalEventsOnly = config.getboolean(agentSection,'scheduledEvents_handleLocalOnly')
             if self.handleLocalEventsOnly is None:
                 logger.debug ("Failed to load Event Grid Topic Name. Make sure config file contains 'topic_name' entry")
                 self.handleLocalEventsOnly = False
-
+        logger.debug ("Topic is +",self.topickey+ "++ endpoint ++"+self.topictopicEndpoint+"++")
 
     def send_to_evnt_grid (self, msg):
         if len(msg['Events']) == 0:
