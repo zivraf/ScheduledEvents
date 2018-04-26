@@ -49,9 +49,7 @@ def main():
             eventData = seHelper.get_scheduled_events()
         
             if eventData is None or len(eventData)==0 or len(eventData['Events']) == 0:
-                logger.debug ("--No Scheduled Events")
-                logger.debug (str(datetime.datetime.now()))
-                logger.debug ("++No Scheduled Events")
+                logger.debug ("No Scheduled Events")
             else :
                 seHelper.log_event(eventData)
                 egHelper.send_to_evnt_grid(eventData)

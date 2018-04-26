@@ -40,7 +40,7 @@
               ]
           },
             "protectedSettings": {
-              "commandToExecute": "bash install-scheduledEventExtention-ubuntu.sh"
+              "commandToExecute": "[concat('bash install-scheduledEventExtention-ubuntu.sh ',parameters('eventGridTopicEndpoint'), ' ', parameters('eventGridKey'))]"
             }
           }
         }

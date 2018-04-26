@@ -9,6 +9,9 @@ apt-get install python3-pip python-dev build-essential -y
 pip3 install azure-mgmt
 pip3 install azure-mgmt-eventgrid
 
+sed -i "s/<yourKey>/$1/g" ./scheduledEventsExtensionConfig.ini
+sed -i "s/<yourTopic>/$2/g" ./scheduledEventsExtensionConfig.ini
+
 workserver_path=/srv/scheduledEvents
 mkdir $workserver_path
 cp scheduledEventsExtension.py $workserver_path
