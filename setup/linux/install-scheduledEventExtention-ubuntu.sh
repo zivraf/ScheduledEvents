@@ -5,9 +5,9 @@ pip install proxy.py
 
 # install python3, pip and Azre event grid client
 apt-get -y update
-apt-get install python-pip python-dev build-essential -y
-pip install azure-mgmt
-pip install azure-mgmt-eventgrid
+apt-get install python3-pip python-dev build-essential -y
+pip3 install azure-mgmt
+pip3 install azure-mgmt-eventgrid
 
 workserver_path=/srv/scheduledEvents
 mkdir $workserver_path
@@ -26,6 +26,6 @@ printf '[Install]\nWantedBy=multi-user.target\nAlias=scheduledEvents.service' >>
 chmod +x /etc/systemd/system/scheduledEvents.service
 
 # start the  service
-# service scheduledEvents start
+service scheduledEvents start
 
 
