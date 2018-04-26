@@ -3,10 +3,11 @@ pip install proxy.py
 
 #!/bin/bash
 
-# install python3-bottle 
+# install python3, pip and Azre event grid client
 apt-get -y update
 apt-get install python-pip python-dev build-essential -y
-apt-get install azure-mgmt-eventgrid
+pip install azure-mgmt
+pip install azure-mgmt-eventgrid
 
 workserver_path=/srv/scheduledEvents
 mkdir $workserver_path

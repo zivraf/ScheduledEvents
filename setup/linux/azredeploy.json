@@ -12,36 +12,23 @@
         "type": "string"
       },
       "eventGridKey": {
-        "type": "securestring"
-      },
-      "fileUris": {
-        "type": "string"
-      },
-      "arguments": {
         "type": "securestring",
-        "defaultValue": " "
+        "defaultValue": ""
       }
     },
-  
-    "variables": {
-      "UriFileNamePieces": "[split(parameters('fileUris'), '/')]",
-      "firstFileNameString": "[variables('UriFileNamePieces')[sub(length(variables('UriFileNamePieces')), 1)]]",
-      "firstFileNameBreakString": "[split(variables('firstFileNameString'), '?')]",
-      "firstFileName": "[variables('firstFileNameBreakString')[0]]"
-    },
-  
   
   
     "resources": [
       {
-        "name": "[concat(parameters('vmName'),'/CustomScriptExtension')]",
+        "name": "[concat(parameters('vmName'),'/scheduledEventsExtension')]",
         "type": "Microsoft.Compute/virtualMachines/extensions",
         "location": "[parameters('location')]",
-        "apiVersion": "2015-06-15",
+        "apiVersion": "2015-06-15",        
         "properties": {
-          "publisher": "Microsoft.Compute",
-          "type": "CustomScriptExtension",
-          "typeHandlerVersion": "1.7",
+          "publisher": 
+          "Microsoft.Azure.Extensions",          
+          "type": "CustomScript",
+          "typeHandlerVersion": "2.0",
           "autoUpgradeMinorVersion": true,
           "settings": {
             "fileUris": [
@@ -53,7 +40,7 @@
               ]
           },
             "protectedSettings": {
-              "commandToExecute": "bash install-scheduledEventExtension-ubuntu.sh"
+              "commandToExecute": "bash install-scheduledEventExtention-ubuntu.sh"
             }
           }
         }
