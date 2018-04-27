@@ -10,7 +10,7 @@ import base64
 import hmac
 import hashlib
 import time
-import datetime
+from datetime import datetime
 # import urllib.request
 # import urllib.parse
 # import requests
@@ -69,9 +69,10 @@ class EventGridMsgSender:
                 eventype=event['EventType']
                 restype=event['ResourceType']
                 notbefore=event['NotBefore'].replace(" ","_")
-                isLocal = False
+                isLocal = False 
                 for resourceId in event['Resources']:            
                     if this_host in resourceId or self.handleLocalEventsOnly == False:
+                        logger.debug ("before sending to event grid "+ str(datetime.now()))
                         self.egClient.publish_events(
                             self.topicEndpoint,
                             events=[{
@@ -79,7 +80,7 @@ class EventGridMsgSender:
                                 'subject' : "ScheduledEvent:"+eventype+", Host:"+resourceId+", Not Before:"+notbefore,
                                 'data': event,
                                 'event_type': "ScheduledEvent",
-                                'event_time':datetime.datetime.now(),
+                                'event_time': datetime.now(),
                                 'data_version': "1.0"
                                 }] )
                         logger.debug ("send_to_evnt_grid: message "+eventid+" was send to EventGrid")
