@@ -22,7 +22,7 @@ In order to deploy andrun the extnesion follow these steps:
 
 (You can check whether the code was deploy and run in your vm. Look for the directory /srv/scheduledEvents and a new service scheduledEvents)
 
-3. Write a sample Logic App triggered fro mthe event grid topic
+3. Write a sample Logic App (or function) triggered with the event grid topic. The LogicApp folder contains a template for a sample workflow. The sample shows how to parse scheduled events, store an event in blob storage, and send an email notification. Remember to rename the <YourEmail> with an actual value.  
 4. Test the experience E2E by initiating a VM reboot fro mthe portal 
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fzivraf%2FScheduledEvents%2Fmaster%2Fsetup%2Flinux%2Fazuredeploy.json" target="_blank">
