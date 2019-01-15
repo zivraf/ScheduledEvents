@@ -9,8 +9,8 @@ pip3 install azure-mgmt
 pip3 install azure-eventgrid
 pip3 install azure-mgmt-eventgrid
 
-sed -i "s/<yourTopic>/$1/g" ./scheduledEventsExtensionConfig.ini
-sed -i "s/<yourKey>/$2/g" ./scheduledEventsExtensionConfig.ini
+sed -i "s@<yourTopic>@$1@g" ./scheduledEventsExtensionConfig.ini
+sed -i "s@<yourKey>@$2@g" ./scheduledEventsExtensionConfig.ini
 
 workserver_path=/srv/scheduledEvents
 mkdir $workserver_path
