@@ -3,7 +3,7 @@
 
 # install python3, pip and Azre event grid client
 apt-get -y update
-apt-get install python3-pip python-dev build-essential -y
+apt-get install python3-pip libssl-dev libffi-dev python-dev build-essential -y
 pip3 install proxy.py
 pip3 install azure-mgmt
 pip3 install azure-eventgrid
