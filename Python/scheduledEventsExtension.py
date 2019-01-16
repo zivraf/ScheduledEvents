@@ -57,7 +57,7 @@ def main():
                 logger.debug ("handling an event on local host")
                 seHelper.log_event(eventData)
                 egHelper.send_to_evnt_grid(eventData, localHost)
-                if autoAck and seHelper.ack_event(eventData) :
+                if autoAck and seHelper.ack_event(eventData,localHost) :
                         # stop the agent after the scheduled event was published
                         isRunning = False
                 else:
