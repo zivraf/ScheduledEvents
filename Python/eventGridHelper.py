@@ -32,7 +32,6 @@ except ImportError:
 log_format = " %(asctime)s [%(levelname)s] %(message)s"
 logger = logging.getLogger('ScheduledEvents')
 logging.basicConfig(format=log_format, level=logging.DEBUG)
-this_host=socket.gethostname()
 eventGridSection= 'EVENT-GRID'
 agentSection = 'AGENT'
 
@@ -55,11 +54,12 @@ class EventGridMsgSender:
                 logger.debug ("Failed to load Event Grid Topic Name. Make sure config file contains 'topic_name' entry")
                 self.handleLocalEventsOnly = False
 
-    def send_to_evnt_grid (self, msg):
+    def send_to_evnt_grid (self, msg, localHostName):
         if len(msg['Events']) == 0:
             logger.debug ("send_to_evnt_grid: No Scheduled Events")
             return
         try:            
+            logger.debug ("send_to_evnt_grid was called")
             credentials = TopicCredentials(self.topicKey)
             egClient = EventGridClient(credentials)
             
@@ -71,7 +71,7 @@ class EventGridMsgSender:
                 notbefore=event['NotBefore'].replace(" ","_")
                 isLocal = False 
                 for resourceId in event['Resources']:            
-                    if this_host in resourceId or self.handleLocalEventsOnly == False:
+                    if localHostName in resourceId or self.handleLocalEventsOnly == False:
                         logger.debug ("before sending to event grid "+ str(datetime.now()))
                         self.egClient.publish_events(
                             self.topicEndpoint,
