@@ -54,7 +54,7 @@ class EventGridMsgSender:
                 logger.debug ("Failed to load Event Grid Topic Name. Make sure config file contains 'topic_name' entry")
                 self.handleLocalEventsOnly = False
 
-      def send_to_evnt_grid (self, msg, localHostName):
+    def send_to_evnt_grid (self, msg, localHostName):
         if len(msg['Events']) == 0:
             logger.debug ("send_to_evnt_grid: No Scheduled Events")
             return
