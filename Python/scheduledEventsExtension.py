@@ -52,19 +52,19 @@ def main():
                 logger.debug ("No Scheduled Events")
                 continue
 
-            localHost = seHelper.get_imds_local_host()
-            if seHelper.is_local_event (eventData,localHost):
-                logger.debug ("handling an event on local host")
-                seHelper.log_event(eventData)
-                egHelper.send_to_evnt_grid(eventData, localHost)
-                if autoAck and seHelper.ack_event(eventData,localHost) :
-                        # stop the agent after the scheduled event was published
-                        isRunning = False
-                else:
-                    logger.debug ("scheduled event was received. not sending any ack")
             else:
-                logger.debug ("handling an event on a different host")
-                    
+                localHost = seHelper.get_imds_local_host()
+                if seHelper.is_local_event (eventData,localHost):
+                    logger.debug ("handling an event on local host")
+                    seHelper.log_event(eventData)
+                    egHelper.send_to_evnt_grid(eventData, localHost)
+                    if autoAck and seHelper.ack_event(eventData,localHost) :
+                            # stop the agent after the scheduled event was published
+                            isRunning = False
+                    else:
+                        logger.debug ("scheduled event was received. not sending any ack")
+                else:
+                    logger.debug ("handling an event from a different host")                        
         except:
             logger.error ("failed to retrieve scheduled events ")
             isRunning = False
