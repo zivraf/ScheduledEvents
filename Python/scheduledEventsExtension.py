@@ -50,7 +50,6 @@ def main():
         
             if eventData is None or len(eventData)==0 or len(eventData['Events']) == 0:
                 logger.debug ("No Scheduled Events")
-                continue
 
             else:
                 localHost = seHelper.get_imds_local_host()

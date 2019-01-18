@@ -26,7 +26,6 @@ imds_url="http://169.254.169.254/metadata/instance?api-version=2017-08-01"
 imds_headers="{Metadata:true}"
 metadata_url="http://169.254.169.254/metadata/scheduledevents?api-version=2017-08-01"
 headers="{Metadata:true}"
-this_host=socket.gethostname()
 log_format = " %(asctime)s [%(levelname)s] %(message)s"
 logger = logging.getLogger('ScheduledEvents')
 logging.basicConfig(format=log_format, level=logging.DEBUG)
@@ -38,17 +37,17 @@ class ScheduledEventsHelper:
         logger.debug ("get_scheduled_events was called")
         try: 
             req=Request(metadata_url)
-            req.add_header('Metadata','true')                    
+            req.add_header('Metadata','true')   
         except Exception:
-            logger.warn ("get_scheduled_events: failed to set a request ")
+            logger.debug ("get_scheduled_events: failed to set a request ")
                     
-        try:
+        try:                 
             resp=urlopen(req)
-            data=json.loads(resp.read().decode('utf8'))            
-        except:
-            logger.warn ("get_scheduled_events: No instance metadata . Are you running an AZURE VM ? ")
+            scheduledEvent_data=json.loads(resp.read().decode('utf8'))            
+        except :
+            logger.warn ("get_scheduled_events: failed to extract scheduled events . Are you running in AZURE? ")
             return        
-        return data
+        return scheduledEvent_data
 
     def get_imds_local_host(self):
         logger.warn ("get_imds_local_host was called")
