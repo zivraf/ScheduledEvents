@@ -24,7 +24,7 @@ except ImportError:
 
 imds_url="http://169.254.169.254/metadata/instance?api-version=2017-08-01"
 imds_headers="{Metadata:true}"
-metadata_url="http://169.254.169.254/metadata/scheduledevents?api-version=2017-08-01"
+metadata_url="http://169.254.169.254/metadata/scheduledevents?api-version=2017-11-01"
 headers="{Metadata:true}"
 log_format = " %(asctime)s [%(levelname)s] %(message)s"
 logger = logging.getLogger('ScheduledEvents')
